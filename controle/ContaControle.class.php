@@ -1,75 +1,141 @@
 <?php
-class ContaControle
+class ContaControle extends abstrErroPropriedades
 {
     function LoginGet()
     {
         $modelo = new apresContaLogin();
-        $modelo->setTitulo('Login - Sistema consulta de sala');
-        $modelo->setUrlJs('conta');
+        $modelo->titulo = 'Login - Sistema consulta de sala';
+        $modelo->urlJs = 'conta';
 
         return $modelo;
     }
-    function LoginPost(object $modelo) : bool
+    
+    public function LoginPost($modelo) : bool
     {
         $usuario = new Usuario();
-        $consultarUsuario = $usuario->ConsultarUsuario($modelo->__get('usuario'));
 
-        if($consultarUsuario)
+        $validarUsuario = $usuario->ValidarUsuario($modelo->usuario, $modelo->senha);
+
+        if($validarUsuario)
         {
-            if($usuario->__get('senha') == $modelo->__get('senha'))
-            {
-                session_start();
-                $_SESSION['login'] = true;
-                $_SESSION['usuario'] = $usuario->__get('usuario');
-
-                return true;
-            }
-            else
-                return false;
+            session_start();
+            $_SESSION['login'] = true;
+            $_SESSION['usuario'] = $modelo->usuario;
+            return true;
         }
         else
+        {
+            $this->mensagem = $usuario->getMensagem();
             return false;
+        }
     }
 
-    function IndexGet($nome)
+    public function IndexGet(string $nome)
     {
         $usuario = new Usuario();
+        $modelo = new apresContaIndex();
+        
         $consultarUsuario = $usuario->ConsultarUsuario($nome);
 
+        $modelo->titulo = 'Conta - Sistema consulta de sala';
+        $modelo->urlJs = 'conta';
+        
         if($consultarUsuario)
         {
-            $modelo = new apresContaIndex();
-            $modelo->setTitulo('Conta - Sistema consulta de sala');
-            $modelo->setUrlJs('conta');
-            $modelo->setUsuario($usuario->__get('usuario'));
-            $modelo->setSenha($usuario->__get('senha'));
-            $modelo->setNome($usuario->__get('nome'));
-            $modelo->setEmail($usuario->__get('email'));
-
-            return $modelo;
+            $modelo->usuario = $usuario->__get('usuario');
+            $modelo->senha = $usuario->__get('senha');
+            $modelo->nome = $usuario->__get('nome');
+            $modelo->email = $usuario->__get('email');
         }
+        else
+        {
+            $this->mensagem = $usuario->getMensagem();
+        }
+        
+        return $modelo;
     }
 
-    function IndexPost(object $modelo)
+    public function IndexPost($modelo) : bool
     {
-        $usuario = new Usuario();
-
-        if($modelo->__get('nome'))
+        try
         {
-            $usuario->setNome($modelo->__get('nome'));
-            $usuario->setEmail($modelo->__get('email'));
+            $validacao = new Validacao();
+            $usuario = new Usuario();
 
-            $alterarUsuario = $usuario->AlterarUsuario($modelo->__get('usuario'));
-        }
-        else
-        {
-            $alterarSenha = $usuario->AlterarSenha($modelo->__get('usuario'), $modelo->__get('senha'), $modelo->__get('novaSenha'), $modelo->__get('novaSenhaNovamente'));
-        }
+            $camposString['Nome'] = $modelo->nome;
+            $validacao->setEntrada($camposString, 'string');
+            
+            $camposEmail['E-mail'] = $modelo->email;
+            $validacao->setEntrada($camposEmail, 'email');
 
-        if(isset($alterarUsuario) && $alterarUsuario || isset($alterarSenha) && $alterarSenha)
+            if($validacao->VerificarVazioArray() || !$validacao->LimparStringArray() || !$validacao->ValidarEmail())
+            {
+                throw new Exception($validacao->getMensagem());
+            }
+
+            $usuario->setNome($validacao->getSaida()['string']['Nome']);
+            $usuario->setEmail($validacao->getSaida()['email']['E-mail']);
+
+            $alterarUsuario = $usuario->AlterarUsuario($modelo->usuario);
+
+            if(!$alterarUsuario)
+            {
+                throw new Exception($usuario->getMensagem());
+            }
+
             return true;
-        else
+        }
+        catch (Exception $e)
+        {
+            $this->mensagem = $e->getMessage();
             return false;
+        }
+    }
+    
+    public function IndexSenhaPost($modelo) : bool
+    {
+        try
+        {
+            $validacao = new Validacao();
+            $usuario = new Usuario();
+            
+            $camposString['Senha atual'] = $modelo->senha;
+            $camposString['Nova senha'] = $modelo->novaSenha;
+            $camposString['Nova senha novamente'] = $modelo->novaSenhaNovamente;
+            $validacao->setEntrada($camposString, 'string');
+
+            if($validacao->VerificarVazioArray() || !$validacao->LimparStringArray())
+            {
+                throw new Exception($validacao->getMensagem());
+            }
+            
+            $validarUsuario = $usuario->ValidarUsuario($modelo->usuario, $modelo->senha);
+            
+            if(!$validarUsuario)
+            {
+                throw new Exception($usuario->getMensagem());
+            }
+            
+            $validarNovaSenha = $usuario->ValidarNovaSenha($modelo->novaSenha, $modelo->novaSenhaNovamente);
+            
+            if(!$validarNovaSenha)
+            {
+                throw new Exception($usuario->getMensagem());
+            }
+            
+            $alterarSenha = $usuario->AlterarSenha($modelo->usuario, $validacao->getSaida()['string']['Nova senha']);
+
+            if(!$alterarSenha)
+            {
+                throw new Exception($usuario->getMensagem());
+            }
+            
+            return true;
+        }
+        catch (Exception $e)
+        {
+            $this->mensagem = $e->getMessage();
+            return false;
+        }
     }
 }
-?>

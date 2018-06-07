@@ -1,17 +1,20 @@
 <?php
-class TurmasControle
+class TurmasControle extends abstrErroPropriedades
 {
     function IndexGet($curso, $periodo)
     {
         $turma = new Turma();
-        $consultarTurmas = $turma->ConsultarTurmas($curso, $periodo);
-
         $modelo = new apresTurmasIndex();
-        $modelo->setTitulo('Turmas - Sistema consulta de sala');
-        $modelo->setUrlJs('turmas');
+        
+        $consultarTurmas = $turma->ConsultarTurmas($curso, $periodo);
+        
+        $modelo->titulo = 'Turmas - Sistema consulta de sala';
+        $modelo->urlJs = 'turmas';
 
-        if($consultarTurmas)
-            $modelo->setTurmas($consultarTurmas);
+        if(!empty($consultarTurmas))
+        {
+            $modelo->turmas = $consultarTurmas;
+        }
 
         return $modelo;
     }
@@ -19,20 +22,19 @@ class TurmasControle
     function ConsultarGet()
     {
         $curso = new Curso();
-        $consultarCursosBiologicas = $curso->ConsultarCursos('Biologicas');
-        $consultarCursosExatas = $curso->ConsultarCursos('Exatas');
-        $consultarCursosHumanas = $curso->ConsultarCursos('Humanas');
-
-        $modelo = new apresTurmasConsultar();
-        $modelo->setTitulo('Consultar turmas - Sistema consulta de sala');
-        $modelo->setUrlJs('turmas');
-
-        if($consultarCursosBiologicas)
-            $modelo->setCursosBiologicas($consultarCursosBiologicas);
-        if($consultarCursosExatas)
-            $modelo->setCursosExatas($consultarCursosExatas);
-        if($consultarCursosHumanas)
-            $modelo->setCursosHumanas($consultarCursosHumanas);
+        $modelo = new apresTurmasAdicionarAlterarRemoverConsultar();
+        
+        $consultarCursos['Biologicas'] = $curso->ConsultarCursos('Biologicas');
+        $consultarCursos['Exatas'] = $curso->ConsultarCursos('Exatas');
+        $consultarCursos['Humanas'] = $curso->ConsultarCursos('Humanas');
+        
+        $modelo->titulo = 'Consultar turmas - Sistema consulta de sala';
+        $modelo->urlJs = 'turmas';
+        
+        if(!empty($consultarCursos))
+        {
+        $modelo->cursos = $consultarCursos;
+        }
 
         return $modelo;
     }
@@ -40,113 +42,194 @@ class TurmasControle
     function AdicionarGet()
     {
         $curso = new Curso();
-        $consultarCursos = array();
-        $consultarCursos[] = $curso->ConsultarCursos('Biologicas');
-        $consultarCursos[] = $curso->ConsultarCursos('Exatas');
-        $consultarCursos[] = $curso->ConsultarCursos('Humanas');
-
         $sala = new Sala();
-        $consultarSalas = array();
+        $modelo = new apresTurmasAdicionarAlterarRemoverConsultar();
+        
+        $consultarCursos['Biologicas'] = $curso->ConsultarCursos('Biologicas');
+        $consultarCursos['Exatas'] = $curso->ConsultarCursos('Exatas');
+        $consultarCursos['Humanas'] = $curso->ConsultarCursos('Humanas');
 
         for($i = 'A'; $i != 'Z'; $i++)
         {
-            $consultarSalas[] = $sala->ConsultarSalas($i);
+            $consultarSalas[$i] = $sala->ConsultarSalas($i);
         }
-
-        $modelo = new apresTurmasAdicionarAlterarRemover();
-        $modelo->setTitulo('Adicionar turma - Sistema consulta de sala');
-        $modelo->setUrlJs('turmas');
-        $modelo->setCursos($consultarCursos);
-        $modelo->setSalas($consultarSalas);
+        
+        $modelo->titulo = 'Adicionar turma - Sistema consulta de sala';
+        $modelo->urlJs = 'turmas';
+        
+        if(!empty($consultarCursos))
+        {
+        $modelo->cursos = $consultarCursos;
+        }
+        
+        if(!empty($consultarSalas))
+        {
+        $modelo->salas = $consultarSalas;
+        }
 
         return $modelo;
     }
 
-    function AdicionarPost(object $modelo)
+    function AdicionarPost($modelo) : bool
     {
-        $turma = new Turma();
-        $turma->setCurso($modelo->__get('curso'));
-        $turma->setPeriodo($modelo->__get('periodo'));
-        $turma->setSemestre($modelo->__get('semestre'));
-        $turma->setSala($modelo->__get('sala'));
-
-        $adicionarTurma = $turma->AdicionarTurma();
-
-        if($adicionarTurma)
+        try
+        {
+            $validacao = new Validacao();
+            $turma = new Turma();
+            
+            $camposString = array();
+            $camposInteiro = array();
+            
+            $camposString['Curso'] = $modelo->curso;
+            $camposString['Periodo'] = $modelo->periodo;
+            $camposString['Sala'] = $modelo->sala;
+            $validacao->setEntrada($camposString, 'string');
+            
+            $camposInteiro['Semestre'] = $modelo->semestre;
+            $validacao->setEntrada($camposInteiro, 'inteiro');
+            
+            if($validacao->VerificarVazioArray() || !$validacao->LimparStringArray() || !$validacao->ValidarInteiroArray())
+            {
+                throw new Exception($validacao->getMensagem());
+            }
+            
+            $turma->setCurso($validacao->getSaida()['string']['Curso']);
+            $turma->setPeriodo($validacao->getSaida()['string']['Periodo']);
+            $turma->setSala($validacao->getSaida()['string']['Sala']);
+            
+            $turma->setSemestre($validacao->getSaida()['inteiro']['Semestre']);
+            
+            if(!$turma->AdicionarTurma())
+            {
+                throw new Exception($turma->getMensagem());
+            }
+            
             return true;
-        else
+        }
+        catch (Exception $e)
+        {
+            $this->mensagem = $e->getMessage();
             return false;
+        }
     }
 
     function AlterarGet($curso, $periodo, $semestre)
     {
-        $turma = new Turma();
-        $consultarTurma = $turma->ConsultarTurma($curso, $periodo, $semestre);
-
-        $sala = new Sala();
-        $consultarSalas = array();
-
-        for($i = 'A'; $i != 'Z'; $i++)
+        $modelo = $this->AlterarRemoverGet($curso, $periodo, $semestre, 'Alterar');
+        
+        if(!empty($modelo))
         {
-            $consultarSalas[] = $sala->ConsultarSalas($i);
-        }
+            $sala = new Sala();
+            $consultarSalas = array();
 
-        if($consultarTurma)
-        {
-            $modelo= new apresTurmasAdicionarAlterarRemover();
-            $modelo->setTitulo('Alterar turma - Sistema consulta de sala');
-            $modelo->setUrlJs('turmas');
-            $modelo->setCurso($turma->__get('curso'));
-            $modelo->setPeriodo($turma->__get('periodo'));
-            $modelo->setSemestre($turma->__get('semestre'));
-            $modelo->setSala($turma->__get('sala'));
-            $modelo->setSalas($consultarSalas);
+            for($i = 'A'; $i != 'Z'; $i++)
+            {
+                $consultarSalas[$i] = $sala->ConsultarSalas($i);
+            }
 
+            if(!empty($consultarSalas))
+            {
+            $modelo->salas = $consultarSalas;
+            }
+            
             return $modelo;
+        }
+        else
+        {
+            return null;
         }
     }
 
-    function AlterarPost(object $modelo)
+    function AlterarPost($modelo) : bool
     {
-        $turma = new Turma();
-        $turma->setSala($modelo->__get('sala'));
+        try
+        {
+            $validacao = new Validacao();
+            $turma = new Turma();
+            
+            $validacao->setCampo('Sala');
+            $validacao->setEntrada($modelo->sala, 'string');
+            
+            if($validacao->VerificarVazio() || !$validacao->LimparString())
+            {
+                throw new Exception($validacao->getMensagem());
+            }
+            
+            $turma->setSala($validacao->getSaida()['string']);
 
-        $alterarTurma = $turma->AlterarTurma($modelo->__get('curso'), $modelo->__get('periodo'), $modelo->__get('semestre'));
+            if(!$turma->AlterarTurma($modelo->curso, $modelo->periodo, $modelo->semestre))
+            {
+                throw new Exception($turma->getMensagem());
+            }
 
-        if($alterarTurma)
             return true;
-        else
+        }
+        catch (Exception $e)
+        {
+            $this->mensagem = $e->getMessage();
             return false;
+        }
     }
 
     function RemoverGet($curso, $periodo, $semestre)
     {
-        $turma = new Turma();
-        $consultarTurma = $turma->ConsultarTurma($curso, $periodo, $semestre);
-
-        if($consultarTurma)
+        $modelo = $this->AlterarRemoverGet($curso, $periodo, $semestre, 'Remover');
+        
+        if(!empty($modelo))
         {
-            $modelo= new apresTurmasAdicionarAlterarRemover();
-            $modelo->setTitulo('Remover turma - Sistema consulta de sala');
-            $modelo->setUrlJs('turmas');
-            $modelo->setCurso($turma->__get('curso'));
-            $modelo->setPeriodo($turma->__get('periodo'));
-            $modelo->setSemestre($turma->__get('semestre'));
-            $modelo->setSala($turma->__get('sala'));
-
             return $modelo;
+        }
+        else
+        {
+            return null;
         }
     }
 
-    function RemoverPost(object $modelo)
+    function RemoverPost($modelo) : bool
     {
-        $turma = new Turma();
-        $removerTurma = $turma->RemoverTurma($modelo->__get('curso'), $modelo->__get('periodo'), $modelo->__get('semestre'));
+        try
+        {
+            $turma = new Turma();
+            
+            if(!$turma->RemoverTurma($modelo->curso, $modelo->periodo, $modelo->semestre))
+            {
+                throw new Exception($turma->getMensagem());
+            }
 
-        if($removerTurma)
             return true;
-        else
+        }
+        catch (Exception $e)
+        {
+            $this->mensagem = $e->getMessage();
             return false;
+        }
+    }
+    
+    private function AlterarRemoverGet($curso, $periodo, $semestre, string $pagina)
+    {
+        try
+        {
+            $turma = new Turma();
+            $modelo = new apresTurmasAdicionarAlterarRemoverConsultar();
+            
+            if(!$turma->ConsultarTurma($curso, $periodo, $semestre))
+            {
+                throw new Exception($turma->getMensagem());
+            }
+            
+            $modelo->titulo = $pagina.' turma - Sistema consulta de sala';
+            $modelo->urlJs = 'turmas';
+            $modelo->curso = $turma->__get('curso');
+            $modelo->periodo = $turma->__get('periodo');
+            $modelo->semestre = $turma->__get('semestre');
+            $modelo->sala = $turma->__get('sala');
+            
+            return $modelo;
+        }
+        catch (Exception $e)
+        {
+            $this->mensagem = $e->getMessage();
+            return null;
+        }
     }
 }
-?>

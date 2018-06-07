@@ -1,14 +1,15 @@
 <?php
 require_once('../_require.php');
 
+$config = new Configuracoes();
 $turmasControle = new TurmasControle();
 $modelo = $turmasControle->ConsultarGet();
 
-include_once(App_CabecalhoModelo);
-include_once(App_MenuModelo);
+include_once($config->getCabecalho());
+include_once($config->getMenu());
 ?>
-    <div class="container">
-        <div class="row justify-content-center mt-4">
+    <div class="container mt-4 mb-4">
+        <div class="row justify-content-center">
             <div class="col col-lg-6 p-4 bg-white">
                 <h2>Turmas <small>/ Consultar</small></h2>
                 <p>Consultar turmas cadastradas:</p>
@@ -18,35 +19,16 @@ include_once(App_MenuModelo);
                         <select name="curso" class="form-control">
                             <option selected>Selecione o curso...</option>
 <?php
-                            if($modelo->__get('cursosBiologicas'))
+                            foreach($modelo->cursos as $cursos)
                             {
-                                foreach($modelo->__get('cursosBiologicas') as $m)
+                                foreach($cursos as $curso)
                                 {
 ?>
-                                    <option><?=$m['nome']?></option>
+                                    <option><?=$curso['nome']?></option>
 <?php
                                 }
                             }
-                            if($modelo->__get('cursosExatas'))
-                            {
-                                foreach($modelo->__get('cursosExatas') as $m)
-                                {
-?>
-                                    <option><?=$m['nome']?></option>
-<?php
-                                }
-                            }
-                            if($modelo->__get('cursosHumanas'))
-                            {
-                                foreach($modelo->__get('cursosHumanas') as $m)
-                                {
-?>
-                                    <option><?=$m['nome']?></option>
-<?php
-                                }
-                            }
-?>
-                        </select>
+?>                        </select>
                     </div>
                     <div class="form-group">
                         <label>Período</label>
@@ -62,4 +44,4 @@ include_once(App_MenuModelo);
             </div>
         </div>
     </div>
-<?php include_once(App_RodapeModelo); ?>
+<?php include_once($config->getRodape()); ?>

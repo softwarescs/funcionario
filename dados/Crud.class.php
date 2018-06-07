@@ -1,5 +1,5 @@
 <?php
-class Crud
+class Crud extends abstrErroPropriedades
 {
     private $conexao;
     private $bancoDados;
@@ -7,12 +7,12 @@ class Crud
     private $declaracao;
     private $resultado;
 
-    function __construct()
+    public function __construct()
     {
         $this->conexao = new Conexao();
     }
 
-    function ConsultarBd($tabela, $coluna1 = null, $filtro1 = null,
+    public function ConsultarBd($tabela, $coluna1 = null, $filtro1 = null,
         $coluna2 = null, $filtro2 = null,
         $coluna3 = null, $filtro3 = null)
     {
@@ -27,24 +27,40 @@ class Crud
                 $this->sql = 'SELECT * FROM ' . $tabela;
 
                 if($this->bancoDados)
+                {
                     $this->declaracao = $this->bancoDados->prepare($this->sql);
+                }
                 else
+                {
                     throw new Exception('Erro no conexao->AbrirBd');
+                }
 
                 if($this->declaracao)
+                {
                     $execute = $this->declaracao->execute();
+                }
                 else
+                {
                     throw new Exception('Erro no bd->prepare.');
+                }
 
                 if($execute)
+                {
                     $getResult = $this->declaracao->get_result();
+                }
                 else
+                {
                     throw new Exception('Erro no declaracao->execute.');
+                }
 
                 if($getResult)
+                {
                     $this->resultado = $getResult->fetch_all(MYSQLI_ASSOC);
+                }
                 else
+                {
                     throw new Exception('Erro no declaracao->get_result.');
+                }
             }
             else
             {
@@ -55,14 +71,22 @@ class Crud
                     $this->sql = "SELECT * FROM " . $tabela . " WHERE " . $coluna1 . "=?";
 
                     if($this->bancoDados)
+                    {
                         $this->declaracao = $this->bancoDados->prepare($this->sql);
+                    }
                     else
+                    {
                         throw new Exception('Erro no conexao->AbrirBd');
+                    }
 
                     if($this->declaracao)
+                    {
                         $bindParam = $this->declaracao->bind_param($bindParamTipoArgs, $filtro1);
+                    }
                     else
+                    {
                         throw new Exception('Erro no bd->prepare.');
+                    }
                 }
                 elseif($qtdeArgs == 5)
                 {
@@ -72,14 +96,22 @@ class Crud
                     $this->sql = 'SELECT * FROM '.$tabela.' WHERE '.$coluna1.'=? AND '.$coluna2.'=?';
 
                     if($this->bancoDados)
+                    {
                         $this->declaracao = $this->bancoDados->prepare($this->sql);
+                    }
                     else
+                    {
                         throw new Exception('Erro no conexao->AbrirBd');
+                    }
 
                     if($this->declaracao)
+                    {
                         $bindParam = $this->declaracao->bind_param($bindParamTipoArgs, $filtro1, $filtro2);
+                    }
                     else
+                    {
                         throw new Exception('Erro no bd->prepare.');
+                    }
                 }
                 elseif($qtdeArgs == 7)
                 {
@@ -117,7 +149,7 @@ class Crud
             }
 
             $this->declaracao->close();
-            $this->conexao->FecharBd($this->bancoDados);
+            $this->conexao->FecharConexao($this->bancoDados);
 
             if(isset($this->resultado))
             {
@@ -125,16 +157,16 @@ class Crud
                 return $this->resultado;
             }
             else
-                throw new Exception('Não foram encontrados resultados no BD.');
+                throw new Exception('Nï¿½o foram encontrados resultados no BD.');
         }
         catch (Exception $e)
         {
-            $_SESSION['erro'] = 'Não foi possível consultar no BD';
+            $this->mensagem = 'NÃ£o foi possÃ­vel consultar os dados no BD.';
             return null;
         }
     }
 
-    function AdicionarBd ($tabela) : bool
+    public function AdicionarBd ($tabela) : bool
     {
         $qtdeArgs = func_num_args();
         $valorArgs = func_get_args();
@@ -172,22 +204,34 @@ class Crud
             $this->sql = 'INSERT INTO ' . $tabela . ' (' . implode(', ', $atributos) . ') VALUES (' . substr($sqlArgs, 0, -2) . ')';
 
             if($this->bancoDados)
+            {
                 $this->declaracao = $this->bancoDados->prepare($this->sql);
+            }
             else
+            {
                 throw new Exception('Erro no conexao->AbrirBd');
+            }
 
             if($this->declaracao)
+            {
                 $bindParam = call_user_func_array(array($this->declaracao, 'bind_param'), $bindParamArgs);
+            }
             else
+            {
                 throw new Exception('Erro no bd->prepare.');
+            }
 
             if($bindParam)
+            {
                 $execute = $this->declaracao->execute();
+            }
             else
+            {
                 throw new Exception('Erro no declaracao->bind_param.');
+            }
 
             $this->declaracao->close();
-            $this->conexao->FecharBd($this->bancoDados);
+            $this->conexao->FecharConexao($this->bancoDados);
 
             if($execute)
             {
@@ -195,16 +239,18 @@ class Crud
                 return true;
             }
             else
+            {
                 throw new Exception('Erro no declaracao->execute.');
+            }
         }
         catch (Exception $e)
         {
-            $_SESSION['erro'] = 'Não foi possível incluir os dados no BD.';
+            $this->mensagem = 'NÃ£o foi possÃ­vel incluir os dados no BD.';
             return false;
         }
     }
 
-    function AlterarBd(string $tabela, $coluna, $filtro) : bool
+    public function AlterarBd(string $tabela, $coluna, $filtro) : bool
     {
         $qtdeArgs = func_num_args();
         $valorArgs = func_get_args();
@@ -227,55 +273,85 @@ class Crud
         }
 
         if(is_string($filtro))
+        {
             $bindParamTipoArgs .= $this->AddBindParamTipoArgs($filtro);
+        }
         else
+        {
             foreach($filtro as $f)
+            {
                 $bindParamTipoArgs .= $this->AddBindParamTipoArgs($f);
+            }
+        }
 
         $bindParamArgs[] = $bindParamTipoArgs;
 
         foreach($valores as $chave => $valor)
+        {
             $bindParamArgs[] = & $valores[$chave];
+        }
 
         if(is_string($filtro))
+        {
             $bindParamArgs[] = & $filtro;
+        }
         else
+        {
             foreach($filtro as $chave => $valor)
+            {
                 $bindParamArgs[] = & $filtro[$chave];
+            }
+        }
 
         try
         {
             $this->bancoDados = $this->conexao->AbrirBd();
 
             if(is_string($coluna))
+            {
                 $this->sql = 'UPDATE ' . $tabela . ' SET ' . implode(', ', $atributos) . ' WHERE ' . $coluna . '=?';
+            }
             else
             {
                 $this->sql = 'UPDATE ' . $tabela . ' SET ' . implode(', ', $atributos) . ' WHERE';
 
                 foreach($coluna as $c)
+                {
                     $this->sql .= ' '.$c.'=? AND';
+                }
 
                 $this->sql = substr($this->sql, 0, -4);
             }
 
             if($this->bancoDados)
+            {
                 $this->declaracao = $this->bancoDados->prepare($this->sql);
+            }
             else
+            {
                 throw new Exception('Erro no conexao->AbrirBd');
+            }
 
             if($this->declaracao)
+            {
                 $bindParam = call_user_func_array(array($this->declaracao, 'bind_param'), $bindParamArgs);
+            }
             else
+            {
                 throw new Exception('Erro no bd->prepare.');
+            }
 
             if($bindParam)
+            {
                 $execute = $this->declaracao->execute();
+            }
             else
+            {
                 throw new Exception('Erro no declaracao->bind_param.');
+            }
 
             $this->declaracao->close();
-            $this->conexao->FecharBd($this->bancoDados);
+            $this->conexao->FecharConexao($this->bancoDados);
 
             if($execute)
             {
@@ -283,16 +359,18 @@ class Crud
                 return true;
             }
             else
+            {
                 throw new Exception('Erro no declaracao->execute.');
+            }
         }
         catch (Exception $exception)
         {
-            $_SESSION['erro'] = 'Não foi possível alterar os dados no BD.';
+            $this->mensagem = 'NÃ£o foi possÃ­vel alterar os dados no BD.';
             return false;
         }
     }
 
-    function RemoverBd($tabela, $coluna1, $filtro1,
+    public function RemoverBd($tabela, $coluna1, $filtro1,
         $coluna2 = null, $filtro2 = null,
         $coluna3 = null, $filtro3 = null) : bool
     {
@@ -343,11 +421,10 @@ class Crud
                 throw new Exception('Erro no declaracao->bind_param.');
 
             $this->declaracao->close();
-            $this->conexao->FecharBd($this->bancoDados);
+            $this->conexao->FecharConexao($this->bancoDados);
 
             if($execute)
             {
-                $_SESSION['erro'] = '';
                 return true;
             }
             else
@@ -355,7 +432,7 @@ class Crud
         }
         catch (Exception $e)
         {
-            $_SESSION['erro'] = 'Não foi possível remover os dados no BD';
+            $this->mensagem = 'NÃ£o foi possÃ­vel remover os dados no BD.';
             return false;
         }
     }
@@ -366,12 +443,18 @@ class Crud
 
         try
         {
-        	if(is_int($argumento))
+            if(is_int($argumento))
+            {
                 $tipoArgs .= 'i';
+            }
             elseif(is_string($argumento))
+            {
                 $tipoArgs .= 's';
+            }
             else
+            {
                 $tipoArgs .= 'd';
+            }
 
             return $tipoArgs;
         }
@@ -381,4 +464,3 @@ class Crud
         }
     }
 }
-?>

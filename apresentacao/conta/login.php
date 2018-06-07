@@ -1,25 +1,35 @@
 <?php
 require_once('../_require.php');
 
+$backup = new Backup();
+$abrirConexao = $backup->AbrirConexao();
+$abrirBd = $backup->AbrirBd();
+if(!empty($abrirConexao) && empty($abrirBd))
+{
+    $backup->RestaurarBd();
+    $backup->RestaurarBkpDadosTabelas();
+}
+
+$config = new Configuracoes();
 $contaControle = new ContaControle();
 
 if($_POST)
 {
     $modelo = new apresContaLogin();
-    $modelo->setUsuario($_POST['usuario']);
-    $modelo->setSenha($_POST['senha']);
+    $modelo->usuario = $_POST['usuario'];
+    $modelo->senha = $_POST['senha'];
 
     $post = $contaControle->LoginPost($modelo);
 
     if($post)
-        header('location: '.app_urlRaizA.'index.php');
-}
-else
-{
-    $modelo = $contaControle->LoginGet();
+    {
+        header('location: '.$config->getUrlApres().'index.php');
+    }
 }
 
-include_once(App_CabecalhoModelo);
+$modelo = $contaControle->LoginGet();
+
+include_once($config->getCabecalho());
 ?>
     <div class="container-fluid h-100">
         <div class="row h-100">
@@ -27,7 +37,7 @@ include_once(App_CabecalhoModelo);
                 <div class="container-fluid h-100">
                     <div class="row h-100">
                         <div class="col text-center my-auto">
-                            <img src="<?=app_urlRaiz?>/wwwrot/img/logo-unip.png">
+                            <img src="<?=$config->getUrl()?>/wwwrot/img/logo-unip.png">
                             <h1 class=" text-white">Sistema consulta de sala</h1>
                         </div>
                     </div>
@@ -37,6 +47,17 @@ include_once(App_CabecalhoModelo);
                 <div class="container-fluid h-100">
                     <div class="row h-100">
                         <div class="col col-lg-8 p-4 bg-white mx-auto my-auto">
+<?php
+                            if(isset($post) && !$post)
+                            {
+?>
+                                <p class="text-danger">
+                                    <i class="fas fa-exclamation mr-2"></i>
+                                    <?=$contaControle->getMensagem()?>
+                                </p>
+<?php
+                            }
+?>
                             <h2>Conta <small>/ Login</small></h2>
                             <p>Fazer login no sistema:</p>
                             <form method="post" action="login.php">
@@ -56,4 +77,4 @@ include_once(App_CabecalhoModelo);
             </div>
         </div>
     </div>
-<?php include_once(App_RodapeModelo); ?>
+<?php include_once($config->getRodape()); ?>

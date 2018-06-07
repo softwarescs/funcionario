@@ -1,6 +1,7 @@
 <?php
 require_once('../_require.php');
 
+$config = new Configuracoes();
 $contaControle = new ContaControle();
 
 session_start();
@@ -13,29 +14,31 @@ if($_POST)
 
         if(isset($_POST['nome']))
         {
-            $modelo->setUsuario($_POST['usuario']);
-            $modelo->setNome($_POST['nome']);
-            $modelo->setEmail($_POST['email']);
+            $modelo->usuario = $_POST['usuario'];
+            $modelo->nome = $_POST['nome'];
+            $modelo->email = $_POST['email'];
+            
+            $post = $contaControle->IndexPost($modelo);
         }
         else
         {
-            $modelo->setUsuario($_SESSION['usuario']);
-            $modelo->setSenha($_POST['senha']);
-            $modelo->setNovaSenha($_POST['novaSenha']);
-            $modelo->setNovaSenhaNovamente($_POST['novaSenhaNovamente']);
+            $modelo->usuario = $_SESSION['usuario'];
+            $modelo->senha = $_POST['senha'];
+            $modelo->novaSenha = $_POST['novaSenha'];
+            $modelo->novaSenhaNovamente = $_POST['novaSenhaNovamente'];
+            
+            $post = $contaControle->IndexSenhaPost($modelo);
         }
-
-        $post = $contaControle->IndexPost($modelo);
     }
 }
-else
+
+if(isset($_SESSION['usuario']))
 {
-    if(isset($_SESSION['usuario']))
-        $modelo = $contaControle->IndexGet($_SESSION['usuario']);
+    $modelo = $contaControle->IndexGet($_SESSION['usuario']);
 }
 
-include_once(App_CabecalhoModelo);
-include_once(App_MenuModelo);
+include_once($config->getCabecalho());
+include_once($config->getMenu());
 ?>
     <div class="container">
         <div class="row mt-4">
@@ -51,12 +54,26 @@ include_once(App_MenuModelo);
                 </ul>
             </div>
             <div class="col-8 col-lg-6 p-4 bg-white">
-                <?php
+<?php
                 if(isset($post) && $post)
-                    echo 'Alterado com sucesso.';
-                elseif(isset($_SESSION['erro']))
-                    echo $_SESSION['erro'];
-                ?>
+                {
+?>
+                    <p class="text-success">
+                        <i class="fas fa-check mr-2"></i>
+                        Alterado com sucesso.
+                    </p>
+<?php
+                }
+                elseif(isset($post) && !$post)
+                {
+?>
+                    <p class="text-danger">
+                        <i class="fas fa-exclamation mr-2"></i>
+                        <?=$contaControle->getMensagem()?>
+                    </p>
+<?php
+                }
+?>
                 <!-- Nav-pills containers -->
                 <div class="tab-content">
                     <div class="tab-pane active" id="inicio">
@@ -66,19 +83,19 @@ include_once(App_MenuModelo);
                             <div class="form-group">
                                 <label>Usuário</label>
                                 <input type="text" name="usuario"
-                                    value="<?=$modelo->__get('usuario')?>"
+                                    value="<?=$modelo->usuario?>"
                                     class="form-control" readonly />
                             </div>
                             <div class="form-group">
                                 <label>Nome</label>
                                 <input type="text" name="nome"
-                                    value="<?=$modelo->__get('nome')?>"
+                                    value="<?=$modelo->nome?>"
                                     class="form-control" />
                             </div>
                             <div class="form-group">
                                 <label>E-mail</label>
                                 <input type="email" name="email"
-                                    value="<?=$modelo->__get('email')?>"
+                                    value="<?=$modelo->email?>"
                                     class="form-control" />
                             </div>
                             <button type="submit" class="col-4 btn btn-secondary mb-2 float-right">Salvar</button>
@@ -107,4 +124,4 @@ include_once(App_MenuModelo);
             </div>
         </div>
     </div>
-<?php include_once(App_RodapeModelo); ?>
+<?php include_once($config->getRodape()); ?>

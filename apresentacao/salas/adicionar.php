@@ -1,34 +1,44 @@
 <?php
 require_once('../_require.php');
 
+$config = new Configuracoes();
 $salasControle = new SalasControle();
 
 if($_POST)
 {
     $modelo = new apresSalasAdicionarAlterarRemover();
-    $modelo->setNome($_POST['nome']);
-    $modelo->setPredio($_POST['predio']);
-    $modelo->setBloco($_POST['bloco']);
-    $modelo->setPavimento($_POST['pavimento']);
+    $modelo->nome = $_POST['nome'];
+    $modelo->predio = $_POST['predio'];
+    $modelo->bloco = $_POST['bloco'];
+    $modelo->pavimento = $_POST['pavimento'];
 
     $post = $salasControle->AdicionarPost($modelo);
 }
-else
-{
-    $modelo = $salasControle->AdicionarGet();
-}
 
-include_once(App_CabecalhoModelo);
+$modelo = $salasControle->AdicionarGet();
+
+include_once($config->getCabecalho());
 ?>
     <div class="container">
         <div class="row justify-content-center">
             <div class="col col-lg-6 p-4 bg-white">
-                <?php
+<?php
                 if(isset($post) && $post)
-                    echo 'Adicionado com sucesso.';
-                elseif(isset($_SESSION['erro']))
-                    echo $_SESSION['erro'];
-                ?>
+                {
+?>
+                    <p class="text-success">
+                        <i class="fas fa-check mr-2"></i>
+                        Adicionado com sucesso.
+                    </p>
+<?php
+                }
+                elseif(isset($post) && !$post)
+                {
+?>
+                    <p class="text-danger"><?=$salasControle->getMensagem()?></p>
+<?php
+                }
+?>
                 <h2>Salas <small>/ Adicionar</small></h2>
                 <p>Adicionar uma nova sala:</p>
                 <form method="post" action="adicionar.php">
@@ -69,4 +79,4 @@ include_once(App_CabecalhoModelo);
             </div>
         </div>
     </div>
-<?php include_once(App_RodapeModelo); ?>
+<?php include_once($config->getRodape()); ?>

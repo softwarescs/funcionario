@@ -1,32 +1,42 @@
 <?php
 require_once('../_require.php');
 
+$config = new Configuracoes();
 $cursosControle = new CursosControle();
 
 if($_POST)
 {
     $modelo = new apresCursosAdicionarAlterarRemover();
-    $modelo->setNome($_POST['nome']);
-    $modelo->setAreaAtuacao($_POST['areaAtuacao']);
+    $modelo->nome = $_POST['nome'];
+    $modelo->areaAtuacao = $_POST['areaAtuacao'];
 
     $post = $cursosControle->AdicionarPost($modelo);
 }
-else
-{
-    $modelo = $cursosControle->AdicionarGet();
-}
 
-include_once(App_CabecalhoModelo);
+$modelo = $cursosControle->AdicionarGet();
+
+include_once($config->getCabecalho());
 ?>
     <div class="container">
         <div class="row justify-content-center">
             <div class="col col-lg-6 p-4 bg-white">
-                <?php
+<?php
                 if(isset($post) && $post)
-                    echo 'Adicionado com sucesso.';
-                elseif(isset($_SESSION['erro']))
-                    echo $_SESSION['erro'];
-                ?>
+                {
+?>
+                    <p class="text-success">
+                        <i class="fas fa-check mr-2"></i>
+                        Adicionado com sucesso.
+                    </p>
+<?php
+                }
+                elseif(isset($post) && !$post)
+                {
+?>
+                    <p class="text-danger"><?=$cursosControle->getMensagem()?></p>
+<?php
+                }
+?>
                 <h2>Cursos <small>/ Adicionar</small></h2>
                 <p>Adicionar um novo curso:</p>
                 <form method="post" action="adicionar.php">
@@ -49,4 +59,4 @@ include_once(App_CabecalhoModelo);
             </div>
         </div>
     </div>
-<?php include_once(App_RodapeModelo); ?>
+<?php include_once($config->getRodape()); ?>

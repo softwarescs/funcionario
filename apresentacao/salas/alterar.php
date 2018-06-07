@@ -1,6 +1,7 @@
 <?php
 require_once('../_require.php');
 
+$config = new Configuracoes();
 $salasControle = new SalasControle();
 
 if($_GET)
@@ -10,27 +11,40 @@ if($_GET)
 elseif($_POST)
 {
     $modelo = new apresSalasAdicionarAlterarRemover();
-    $modelo->setNome($_POST['nome']);
-    $modelo->setPredio($_POST['predio']);
-    $modelo->setBloco($_POST['bloco']);
-    $modelo->setPavimento($_POST['pavimento']);
+    $modelo->nome = $_POST['nome'];
+    $modelo->predio = $_POST['predio'];
+    $modelo->bloco = $_POST['bloco'];
+    $modelo->pavimento = $_POST['pavimento'];
 
     $post = $salasControle->AlterarPost($modelo);
 }
 else
+{
     header('location: index.php');
+}
 
-include_once(App_CabecalhoModelo);
+include_once($config->getCabecalho());
 ?>
     <div class="container">
         <div class="row justify-content-center">
             <div class="col col-lg-6 p-4 bg-white">
-                <?php
+<?php
                 if(isset($post) && $post)
-                    echo 'Alterado com sucesso.';
-                elseif(isset($_SESSION['erro']))
-                    echo $_SESSION['erro'];
-                ?>
+                {
+?>
+                    <p class="text-success">
+                        <i class="fas fa-check mr-2"></i>
+                        Alterado com sucesso.
+                    </p>
+<?php
+                }
+                elseif(isset($post) && !$post)
+                {
+?>
+                    <p class="text-danger"><?=$salasControle->getMensagem()?></p>
+<?php
+                }
+?>
                 <h2>Salas <small>/ Alterar</small></h2>
                 <?php
                 if($_GET)
@@ -41,13 +55,13 @@ include_once(App_CabecalhoModelo);
                     <div class="form-group">
                         <label>Nome da sala</label>
                         <input type="text" name="nome"
-                               value="<?=$modelo->__get('nome')?>"
+                               value="<?=$modelo->nome?>"
                                class="form-control" readonly />
                     </div>
                     <div class="form-group">
                         <label>Prédio</label>
                         <select name="predio" class="form-control">
-                            <option selected><?=$modelo->__get('predio')?></option>
+                            <option selected><?=$modelo->predio?></option>
                             <option>1</option>
                             <option>2</option>
                             <option>3</option>
@@ -56,7 +70,7 @@ include_once(App_CabecalhoModelo);
                     <div class="form-group">
                         <label>Bloco</label>
                         <select name="bloco" class="form-control">
-                            <option selected><?=$modelo->__get('bloco')?></option>
+                            <option selected><?=$modelo->bloco?></option>
                             <option>A</option>
                             <option>B</option>
                             <option>C</option>
@@ -65,7 +79,7 @@ include_once(App_CabecalhoModelo);
                     <div class="form-group">
                         <label>Pavimento</label>
                         <select name="pavimento" class="form-control">
-                            <option selected><?=$modelo->__get('pavimento')?></option>
+                            <option selected><?=$modelo->pavimento?></option>
                             <option>1</option>
                             <option>2</option>
                             <option>3</option>
@@ -80,4 +94,4 @@ include_once(App_CabecalhoModelo);
             </div>
         </div>
     </div>
-<?php include_once(App_RodapeModelo); ?>
+<?php include_once($config->getRodape()); ?>

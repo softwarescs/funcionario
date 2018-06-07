@@ -1,25 +1,29 @@
 <?php
 require_once('../_require.php');
 
+$config = new Configuracoes();
+
 if($_POST)
 {
     $turmasControle = new TurmasControle();
     $modelo = $turmasControle->IndexGet($_POST['curso'], $_POST['periodo']);
 }
 else
+{
     header('location: consultar.php');
+}
 
-include_once(App_CabecalhoModelo);
-include_once(App_MenuModelo);
+include_once($config->getCabecalho());
+include_once($config->getMenu());
 ?>
-    <div class="container">
-        <div class="row justify-content-center mt-4">
+    <div class="container mt-4 mb-4">
+        <div class="row justify-content-center">
             <div class="col col-lg-8 p-4 bg-white">
                 <h2>Turmas</h2>
                 <p>Lista das turmas cadastradas:</p>
                 <div class="container-fluid">
 <?php
-                    if($modelo->__get('turmas'))
+                    if($modelo->turmas)
                     {                                                            
 ?>
                         <table class="table table-hover">
@@ -34,17 +38,17 @@ include_once(App_MenuModelo);
                             </thead>
                             <tbody>
 <?php                                                    
-                                foreach($modelo->__get('turmas') as $m)
+                                foreach($modelo->turmas as $turma)
                                 {
 ?>
                                     <tr class="row">
-                                        <td class="col-4"><?=$m['cursos_nome']?></td>
-                                        <td class="col-2"><?=$m['periodo']?></td>
-                                        <td class="col-2"><?=$m['semestre']?></td>
-                                        <td class="col-1"><?=$m['salas_nome']?></td>
+                                        <td class="col-4"><?=$turma['cursos_nome']?></td>
+                                        <td class="col-2"><?=$turma['periodo']?></td>
+                                        <td class="col-2"><?=$turma['semestre']?></td>
+                                        <td class="col-1"><?=$turma['salas_nome']?></td>
                                         <td class="col-3">
-                                            <a class="btn btn-sm btn-outline-secondary" href="#" onclick="javascript: window.open('remover.php?c=<?=$m['cursos_nome']?>&p=<?=$m['periodo']?>&s=<?=$m['semestre']?>', '', 'width=500,height=525,left=' + (document.documentElement.clientWidth - 500) / 2 + ',top=' + (document.documentElement.clientHeight - 525) / 2)">Remover</a>
-                                            <a class="btn btn-sm btn-secondary" href="#" onclick="javascript: window.open('alterar.php?c=<?=$m['cursos_nome']?>&p=<?=$m['periodo']?>&s=<?=$m['semestre']?>', '', 'width=500,height=525,left=' + (document.documentElement.clientWidth - 500) / 2 + ',top=' + (document.documentElement.clientHeight - 525) / 2)">Alterar</a>
+                                            <a class="btn btn-sm btn-outline-secondary" href="#" onclick="javascript: window.open('remover.php?c=<?=$turma['cursos_nome']?>&p=<?=$turma['periodo']?>&s=<?=$turma['semestre']?>', '', 'width=500,height=525,left=' + (document.documentElement.clientWidth - 500) / 2 + ',top=' + (document.documentElement.clientHeight - 525) / 2)">Remover</a>
+                                            <a class="btn btn-sm btn-secondary" href="#" onclick="javascript: window.open('alterar.php?c=<?=$turma['cursos_nome']?>&p=<?=$turma['periodo']?>&s=<?=$turma['semestre']?>', '', 'width=500,height=525,left=' + (document.documentElement.clientWidth - 500) / 2 + ',top=' + (document.documentElement.clientHeight - 525) / 2)">Alterar</a>
                                         </td>
                                     </tr>
 <?php
@@ -66,4 +70,4 @@ include_once(App_MenuModelo);
             </div>
         </div>
     </div>
-<?php include_once(App_RodapeModelo); ?>
+<?php include_once($config->getRodape()); ?>

@@ -1,42 +1,77 @@
 <?php
-//Configurações gerais do sistema
-//Pasta raiz do sistema
-if (!defined('App_DirRaiz'))
-    define('App_DirRaiz', dirname(__FILE__) . '/');
+class Configuracoes
+{
+    private $diretorio;
+    private $url;
+    private $urlApres;
+    private $cabecalho;
+    private $menu;
+    private $rodape;
+    private $dataHora;
+    private $bdHost;
+    private $bdUsuario;
+    private $bdSenha;
+    private $bdNome;
 
-//Url raiz do sistema
-if (!defined('app_urlRaiz'))
-    define('app_urlRaiz', '/scs/appfuncionario/');
 
-//Url raiz apresentação do sistema
-if (!defined('app_urlRaizA'))
-    define('app_urlRaizA', app_urlRaiz . 'apresentacao/');
+    public function __construct()
+    {
+        $this->diretorio = dirname(__FILE__).'/';
+        $this->url = '/scs/appfuncionario/';
+        $this->urlApres = $this->url.'apresentacao/';
+        $this->cabecalho = $this->diretorio.'apresentacao/_cabecalho.php';
+        $this->menu = $this->diretorio.'apresentacao/_menu.php';
+        $this->rodape = $this->diretorio.'apresentacao/_rodape.php';
+        date_default_timezone_set('America/Sao_Paulo');
+        $this->dataHora = date('h:i:s - d/m');
+        $this->bdHost = 'localhost';
+        $this->bdUsuario = 'root';
+        $this->bdSenha = '';
+        $this->bdNome = 'scs';
+    }
 
-//Modelo de cabeçalho, menu e rodapé do sistema
-if(!defined('App_CabecalhoModelo'))
-    define('App_CabecalhoModelo', App_DirRaiz . 'apresentacao/_cabecalho.php');
-if(!defined('App_RodapeModelo'))
-    define('App_RodapeModelo', App_DirRaiz . 'apresentacao/_rodape.php');
-if(!defined('App_MenuModelo'))
-    define('App_MenuModelo', App_DirRaiz . 'apresentacao/_menu.php');
-
-//Data/Hora
-date_default_timezone_set('America/Sao_Paulo');
-define('Data_Hora', date('h:i:s - d/m'));
-
-//Banco de dados
-//Host do banco de dados
-define('Bd_Host', 'localhost');
-
-//Usuário do banco de dados
-define('Bd_Usuario', 'root');
-
-//Senha do banco de dados
-define('Bd_Senha', '');
-
-//Nome do banco de dados
-define('Bd_Nome', 'scs');
-
-//API banco de dados
-define('Bd_Api', App_DirRaiz . 'dados/Conexao.class.php');
-?>
+    public function getDiretorio()
+    {
+        return $this->diretorio;
+    }
+    public function getUrl()
+    {
+        return $this->url;
+    }
+    public function getUrlApres()
+    {
+        return $this->urlApres;
+    }
+    public function getCabecalho()
+    {
+        return $this->cabecalho;
+    }
+    public function getMenu()
+    {
+        return $this->menu;
+    }
+    public function getRodape()
+    {
+        return $this->rodape;
+    }
+    public function getDataHora()
+    {
+        return $this->dataHora;
+    }
+    public function getBdHost()
+    {
+        return $this->bdHost;
+    }
+    public function getBdUsuario()
+    {
+        return $this->bdUsuario;
+    }
+    public function getBdSenha()
+    {
+        return $this->bdSenha;
+    }
+    public function getBdNome()
+    {
+        return $this->bdNome;
+    }
+}

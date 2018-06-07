@@ -1,14 +1,15 @@
 <?php
 require_once('../_require.php');
 
+$config = new Configuracoes();
 $salasControle = new SalasControle();
 $modelo = $salasControle->IndexGet();
 
-include_once(App_CabecalhoModelo);
-include_once(App_MenuModelo);
+include_once($config->getCabecalho());
+include_once($config->getMenu());
 ?>
-    <div class="container">
-        <div class="row justify-content-center mt-4">
+    <div class="container  mt-4 mb-4">
+        <div class="row justify-content-center">
             <div class="col col-lg-6 p-4 bg-white">
                 <h2>Salas</h2>
                 <p>Lista das salas cadastradas:</p>
@@ -20,7 +21,7 @@ include_once(App_MenuModelo);
                     $first = true;
                     for($i = 'A'; $i != 'Z'; $i++)
                     {
-                        if($modelo->__get('salas')[$i])
+                        if($modelo->salas[$i])
                         {
 ?>
                             <li class="nav-item">
@@ -38,7 +39,7 @@ include_once(App_MenuModelo);
                     $first = true;
                     for($i = 'A'; $i != 'Z'; $i++)
                     {
-                        if($modelo->__get('salas')[$i])
+                        if($modelo->salas[$i])
                         {
 ?>
                             <div class="tab-pane <?php if($first) {echo 'active';}?> container" id="<?=$i?>">
@@ -53,16 +54,16 @@ include_once(App_MenuModelo);
                                     </thead>
                                     <tbody>
 <?php
-                                        foreach($modelo->__get('salas')[$i] as $m)
+                                        foreach($modelo->salas[$i] as $sala)
                                         {
 ?>
                                             <tr class="row">
-                                                <td class="col-3"><?=$m['nome']?></td>
-                                                <td class="col-2"><?=$m['predio']?></td>
-                                                <td class="col-3"><?=$m['pavimento']?></td>
+                                                <td class="col-3"><?=$sala['nome']?></td>
+                                                <td class="col-2"><?=$sala['predio']?></td>
+                                                <td class="col-3"><?=$sala['pavimento']?></td>
                                                 <td class="col-4">
-                                                    <a class="btn btn-sm btn-outline-secondary" href="#" onclick="javascript: window.open('remover.php?nome=<?=$m['nome']?>', '', 'width=500,height=525,left=' + (document.documentElement.clientWidth - 500) / 2 + ',top=' + (document.documentElement.clientHeight - 525) / 2)">Remover</a>
-                                                    <a class="btn btn-sm btn-secondary" href="#" onclick="javascript: window.open('alterar.php?nome=<?=$m['nome']?>', '', 'width=500,height=525,left=' + (document.documentElement.clientWidth - 500) / 2 + ',top=' + (document.documentElement.clientHeight - 525) / 2)">Alterar</a>
+                                                    <a class="btn btn-sm btn-outline-secondary" href="#" onclick="javascript: window.open('remover.php?nome=<?=$sala['nome']?>', '', 'width=500,height=525,left=' + (document.documentElement.clientWidth - 500) / 2 + ',top=' + (document.documentElement.clientHeight - 525) / 2)">Remover</a>
+                                                    <a class="btn btn-sm btn-secondary" href="#" onclick="javascript: window.open('alterar.php?nome=<?=$sala['nome']?>', '', 'width=500,height=525,left=' + (document.documentElement.clientWidth - 500) / 2 + ',top=' + (document.documentElement.clientHeight - 525) / 2)">Alterar</a>
                                                 </td>
                                             </tr>
 <?php
@@ -80,4 +81,4 @@ include_once(App_MenuModelo);
             </div>
         </div>
     </div>
-<?php include_once(App_RodapeModelo); ?>
+<?php include_once($config->getRodape()); ?>

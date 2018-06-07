@@ -1,35 +1,47 @@
 <?php
 require_once('../_require.php');
 
+$config = new Configuracoes();
 $turmasControle = new TurmasControle();
 
 if($_POST)
 {
-    $modelo = new apresTurmasAdicionarAlterarRemover();
-    $modelo->setCurso($_POST['curso']);
-    $modelo->setPeriodo($_POST['periodo']);
-    $modelo->setSemestre($_POST['semestre']);
-    $modelo->setSala($_POST['sala']);
+    $modelo = new apresTurmasAdicionarAlterarRemoverConsultar();
+    $modelo->curso = $_POST['curso'];
+    $modelo->periodo = $_POST['periodo'];
+    $modelo->semestre = $_POST['semestre'];
+    $modelo->sala = $_POST['sala'];
 
     $post = $turmasControle->AdicionarPost($modelo);
-}
-else
-{
+    
     $modelo = $turmasControle->AdicionarGet();
 }
 
-include_once(App_CabecalhoModelo);
-include_once(App_MenuModelo);
+$modelo = $turmasControle->AdicionarGet();
+
+include_once($config->getCabecalho());
+include_once($config->getMenu());
 ?>
-    <div class="container">
-        <div class="row justify-content-center mt-4">
+    <div class="container mt-4 mb-4">
+        <div class="row justify-content-center">
             <div class="col col-lg-6 p-4 bg-white">
-                <?php
+<?php
                 if(isset($post) && $post)
-                    echo 'Adicionado com sucesso.';
-                elseif(isset($_SESSION['erro']))
-                    echo $_SESSION['erro'];
-                ?>
+                {
+?>
+                    <p class="text-success">
+                        <i class="fas fa-check mr-2"></i>
+                        Adicionado com sucesso.
+                    </p>
+<?php
+                }
+                elseif(isset($post) && !$post)
+                {
+?>
+                    <p class="text-danger"><?=$turmasControle->getMensagem()?></p>
+<?php
+                }
+?>
                 <h2>Turmas <small>/ Adicionar</small></h2>
                 <p>Adicionar uma nova turma:</p>
                 <form method="post" action="adicionar.php">
@@ -38,12 +50,12 @@ include_once(App_MenuModelo);
                         <select name="curso" class="form-control">
                             <option selected>Selecione o curso...</option>
 <?php
-                            foreach($modelo->__get('cursos') as $model)
+                            foreach($modelo->cursos as $cursos)
                             {
-                                foreach($model as $m)
+                                foreach($cursos as $curso)
                                 {
 ?>
-                                    <option><?=$m['nome']?></option>
+                                    <option><?=$curso['nome']?></option>
 <?php
                                 }
                             }
@@ -73,12 +85,12 @@ include_once(App_MenuModelo);
                         <select name="sala" class="form-control">
                             <option selected>Selecione a sala...</option>
 <?php
-                            foreach($modelo->__get('salas') as $model)
+                            foreach($modelo->salas as $salas)
                             {
-                                foreach($model as $m)
+                                foreach($salas as $sala)
                                 {
 ?>
-                                    <option><?=$m['nome']?></option>
+                                    <option><?=$sala['nome']?></option>
 <?php
                                 }
                             }
@@ -90,4 +102,4 @@ include_once(App_MenuModelo);
             </div>
         </div>
     </div>
-<?php include_once(App_RodapeModelo); ?>
+<?php include_once($config->getRodape()); ?>

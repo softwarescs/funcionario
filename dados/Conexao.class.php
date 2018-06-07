@@ -1,72 +1,81 @@
 <?php
-class Conexao
+class Conexao extends abstrErroPropriedades
 {
     private $host;
     private $usuario;
     private $senha;
-    private $nome;
-    public $status;
+    protected $bancoDados;
 
-    function __construct()
+    public function __construct()
     {
-        $this->host = Bd_Host;
-        $this->usuario = Bd_Usuario;
-        $this->senha = Bd_Senha;
-        $this->nome = Bd_Nome;
-        $this->status = false;
+        $config = new Configuracoes();
+        $this->host = $config->getBdHost();
+        $this->usuario = $config->getBdUsuario();
+        $this->senha = $config->getBdSenha();
+        $this->bancoDados = $config->getBdNome();
     }
 
-    //Abre conex�o com o banco de dados
-    function AbrirBd()
+    public function AbrirConexao()
     {
         try
         {
-            @$conexao = new mysqli($this->host, $this->usuario, $this->senha, $this->nome);
+            @$conexao = new mysqli($this->host, $this->usuario, $this->senha);
             $conexao->set_charset('utf8');
 
-            if(!$conexao->connect_error)
+            if($conexao->connect_error)
             {
-                $this->status = true;
-                $_SESSION['erro'] = '';
-                return $conexao;
-            }
-            else
                 throw new Exception('Erro ao instanciar mysqli.');
+            }
+            
+            return $conexao;
         }
         catch (Exception $e)
         {
-            $_SESSION['erro'] = 'N�o foi possivel abrir uma conex�o com o banco de dados.';
+            $this->mensagem = 'Não foi possível abrir uma conexão.';
+            return null;
+        }
+    }
+    
+    //Abre conexão com o banco de dados
+    public function AbrirBd()
+    {
+        try
+        {
+            if(!$conexao = $this->AbrirConexao())
+            {
+                throw new Exception('Não foi possivel abrir uma conexão.');
+            }
+            
+            if(!$conexao->select_db($this->bancoDados))
+            {
+                throw new Exception('Erro ao selecionar o banco de dados.');
+            }
+            
+            return $conexao;
+        }
+        catch (Exception $e)
+        {
+            $this->mensagem = 'Não foi possível abrir uma conexão com o banco de dados.';
             return null;
         }
     }
 
-    //Fecha conex�o com o banco de dados
-    function FecharBd($conexao) : bool
+    //Fecha conexão com o banco de dados
+    public function FecharConexao($conexao) : bool
     {
         try
         {
-            $fechar = mysqli_close($conexao);
-
-            if($fechar)
+            if(!mysqli_close($conexao))
             {
-                $this->status = false;
-                $_SESSION['erro'] = '';
-                return true;
+                throw new Exception('Erro ao fechar a instância mysqli.');
             }
-            else
-                throw new Exception('Erro ao fechar a inst�ncia mysqli.');
+            
+            return true;
         }
         catch (Exception $e)
         {
-            $_SESSION['erro'] = 'N�o foi possivel fechar a conex�o com o banco de dados.';
+            $this->mensagem = 'Não foi possível fechar a conexão.';
             return false;
         }
     }
-
-    //Get
-    function __get($name)
-    {
-        return $this->$name;
-    }
 }
-?>

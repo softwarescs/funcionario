@@ -3,15 +3,15 @@ require_once(dirname(dirname(__FILE__)).'/Configuracoes.php');
 
 spl_autoload_register(function ($classe)
 {
+    $config = new Configuracoes();
     $diretorios = array(
-        App_DirRaiz.'controle/',
-        App_DirRaiz.'dados/',
-        App_DirRaiz.'modelo/',
-        App_DirRaiz.'modelo/conta/',
-        App_DirRaiz.'modelo/cursos/',
-        App_DirRaiz.'modelo/index/',
-        App_DirRaiz.'modelo/salas/',
-        App_DirRaiz.'modelo/turmas/'
+        $config->getDiretorio().'controle/',
+        $config->getDiretorio().'dados/',
+        $config->getDiretorio().'modelo/',
+        $config->getDiretorio().'modelo/conta/',
+        $config->getDiretorio().'modelo/cursos/',
+        $config->getDiretorio().'modelo/salas/',
+        $config->getDiretorio().'modelo/turmas/'
     );
 
     foreach($diretorios as $d)

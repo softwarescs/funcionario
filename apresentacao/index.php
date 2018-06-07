@@ -1,47 +1,48 @@
 <?php
 require_once('_require.php');
 
-$indexControle = new IndexControle();
+$config = new Configuracoes();
+$indexControle = new InicioControle();
 $modelo = $indexControle->IndexGet();
 
-$turmas = $modelo->__get('turmas');
+$turmas = $modelo->turmas;
 $ultTurma = end($turmas);
 $penulTurma = prev($turmas);
 $antepenulTurma = prev($turmas);
 
-$salas = $modelo->__get('salas');
+$salas = $modelo->salas;
 $ultSala = end($salas);
 $penulSala = prev($salas);
 $antepenulSala = prev($salas);
 
-include_once(App_CabecalhoModelo);
-include_once(App_MenuModelo);
+include_once($config->getCabecalho());
+include_once($config->getMenu());
 ?>
 <div class="container mt-4 mb-4">
     <div class="row justify-content-center">
         <div class="col col-lg-8 p-4 bg-white">
             <div class="container-fluid p-0">
-				<div class="row">
+                <div class="row">
                     <div class="col-6">
                         <h2>Turmas</h2>
                     </div>
-					<div class="col-6 pt-3 text-right">
-						<a class="" href="./turmas/consultar.php">Ver todas...</a>
-					</div>
-				</div>
+                    <div class="col-6 pt-3 text-right">
+                        <a class="" href="./turmas/consultar.php">Ver todas...</a>
+                    </div>
+                </div>
                 <div class="row">                    
                     <div class="col-8">
                         <h5 class="">Últimas turmas cadastradas:</h5>
                         <div class="container">
-							<table class="table table-hover">
-								<thead>
+                            <table class="table table-hover">
+                                <thead>
                                     <tr class="row">
                                         <th class="col-6 text-muted" style="border-top:none !important">Curso</th>
                                         <th class="col-2 text-muted" style="border-top:none !important">Período</th>
                                         <th class="col-2 text-muted" style="border-top:none !important">Semestre</th>
                                         <th class="col-2 text-muted" style="border-top:none !important">Sala</th>
                                     </tr>
-								</thead>
+                                </thead>
                                 <tbody>
                                     <tr class="row">
                                         <td class="col-6">
@@ -86,7 +87,7 @@ include_once(App_MenuModelo);
                                         </td>
                                     </tr>
                                 </tbody>
-							</table>
+                            </table>
                         </div>
                     </div>
                     <div class="col-4">
@@ -96,11 +97,11 @@ include_once(App_MenuModelo);
                             </div>
                             <div class="card-body bg-secondary text-center text-white pt-5 pb-4">
                                 <h2>
-                                    <?=$modelo->__get('qtdeTurmas')?>
+                                    <?=count($turmas)?>
                                 </h2>
                             </div>
                             <div class="card-footer text-muted">
-                                <i class="far fa-clock"></i> <?=Data_Hora?>
+                                <i class="far fa-clock"></i> <?=$config->getDataHora()?>
                             </div>
                         </div>
                     </div>
@@ -123,11 +124,11 @@ include_once(App_MenuModelo);
                             </div>
                             <div class="card-body bg-secondary text-center text-white pt-5 pb-5">
                                 <h2>
-                                    <?=$modelo->__get('qtdeCursos')?>
+                                    <?=count($modelo->cursos['Biologicas'])+ count($modelo->cursos['Exatas']) + count($modelo->cursos['Humanas'])?>
                                 </h2>
                             </div>
                             <div class="card-footer text-muted">
-                                <i class="far fa-clock"></i> <?=Data_Hora?>
+                                <i class="far fa-clock"></i> <?=$config->getDataHora()?>
                             </div>
                         </div>
                     </div>
@@ -144,19 +145,19 @@ include_once(App_MenuModelo);
                                 <tbody>
                                     <tr class="row">
                                         <td class="col-7">
-                                            <?=end($modelo->__get('cursos')['biologicas'])['nome']?>
+                                            <?=end($modelo->cursos['Biologicas'])['nome']?>
                                         </td>
                                         <td class="col-5">Biológicas</td>
                                     </tr>
                                     <tr class="row">
                                         <td class="col-7">
-                                            <?=end($modelo->__get('cursos')['exatas'])['nome']?>
+                                            <?=end($modelo->cursos['Exatas'])['nome']?>
                                         </td>
                                         <td class="col-5">Exatas</td>
                                     </tr>
                                     <tr class="row">
                                         <td class="col-7">
-                                            <?=end($modelo->__get('cursos')['humanas'])['nome']?>
+                                            <?=end($modelo->cursos['Humanas'])['nome']?>
                                         </td>
                                         <td class="col-5">Humanas</td>
                                     </tr>
@@ -246,7 +247,7 @@ include_once(App_MenuModelo);
                                 </h2>
                             </div>
                             <div class="card-footer text-muted">
-                                <i class="far fa-clock"></i> <?=Data_Hora?>
+                                <i class="far fa-clock"></i> <?=$config->getDataHora()?>
                             </div>
                         </div>
                     </div>
@@ -255,4 +256,4 @@ include_once(App_MenuModelo);
         </div>
     </div>
 </div>
-<?php include_once(App_RodapeModelo); ?>
+<?php include_once($config->getRodape()); ?>

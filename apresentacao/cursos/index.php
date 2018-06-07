@@ -1,14 +1,15 @@
 <?php
 require_once('../_require.php');
 
+$config = new Configuracoes();
 $cursosControle = new CursosControle();
 $modelo = $cursosControle->IndexGet();
 
-include_once(App_CabecalhoModelo);
-include_once(App_MenuModelo);
+include_once($config->getCabecalho());
+include_once($config->getMenu());
 ?>
-    <div class="container">
-        <div class="row justify-content-center mt-4">
+    <div class="container mt-4 mb-4">
+        <div class="row justify-content-center">
             <div class="col col-lg-6 p-4 bg-white">
                 <h2>Cursos</h2>
                 <p>Lista dos cursos cadastrados:</p>
@@ -30,7 +31,7 @@ include_once(App_MenuModelo);
                 <div class="tab-content">
                     <div class="tab-pane active container-fluid" id="biologicas">
 <?php
-                        if($modelo->__get('listaBiologicas'))
+                        if($modelo->cursos['Biologicas'])
                         {
 ?>
                             <table class="table table-hover">
@@ -42,14 +43,14 @@ include_once(App_MenuModelo);
                                 </thead>
                                 <tbody>
 <?php
-                                    foreach($modelo->__get('listaBiologicas') as $m)
+                                    foreach($modelo->cursos['Biologicas'] as $curso)
                                     {
 ?>
                                         <tr class="row">
-                                            <td class="col-8"><?=$m['nome']?></td>
+                                            <td class="col-8"><?=$curso['nome']?></td>
                                             <td class="col-4">
-                                                <a class="btn btn-sm btn-outline-secondary" href="#" onclick="javascript: window.open('remover.php?nome=<?=$m['nome']?>', '', 'width=500,height=355,left=' + (document.documentElement.clientWidth - 500) / 2 + ',top=' + (document.documentElement.clientHeight - 355) / 2)">Remover</a>
-                                                <a class="btn btn-sm btn-secondary" href="#" onclick="javascript: window.open('alterar.php?nome=<?=$m['nome']?>', '', 'width=500,height=355,left=' + (document.documentElement.clientWidth - 500) / 2 + ',top=' + (document.documentElement.clientHeight - 355) / 2)">Alterar</a>
+                                                <a class="btn btn-sm btn-outline-secondary" href="#" onclick="javascript: window.open('remover.php?nome=<?=$curso['nome']?>', '', 'width=500,height=355,left=' + (document.documentElement.clientWidth - 500) / 2 + ',top=' + (document.documentElement.clientHeight - 355) / 2)">Remover</a>
+                                                <a class="btn btn-sm btn-secondary" href="#" onclick="javascript: window.open('alterar.php?nome=<?=$curso['nome']?>', '', 'width=500,height=355,left=' + (document.documentElement.clientWidth - 500) / 2 + ',top=' + (document.documentElement.clientHeight - 355) / 2)">Alterar</a>
                                             </td>
                                         </tr>
 <?php
@@ -62,14 +63,14 @@ include_once(App_MenuModelo);
                         else
                         {
 ?>
-                            <p class="text-danger">Não existem cursos da área de Biológicas cadastrados.</p>
+                            <p class="text-danger mt-2">Não existem cursos da área de Biológicas cadastrados.</p>
 <?php
                         }
 ?>
                     </div>
                     <div class="tab-pane container-fluid" id="exatas">
 <?php
-                        if($modelo->__get('listaExatas'))
+                        if($modelo->cursos['Exatas'])
                         {
 ?>
                             <table class="table table-hover">
@@ -81,14 +82,14 @@ include_once(App_MenuModelo);
                                 </thead>
                                 <tbody>
 <?php
-                                    foreach($modelo->__get('listaExatas') as $m)
+                                    foreach($modelo->cursos['Exatas'] as $curso)
                                     {
 ?>
                                         <tr class="row">
-                                            <td class="col-8"><?=$m['nome']?></td>
+                                            <td class="col-8"><?=$curso['nome']?></td>
                                             <td class="col-4">
-                                                <a class="btn btn-sm btn-outline-secondary" href="#" onclick="javascript: window.open('remover.php?nome=<?=$m['nome']?>', '', 'width=500,height=355,left=' + (document.documentElement.clientWidth - 500) / 2 + ',top=' + (document.documentElement.clientHeight - 355) / 2)">Remover</a>
-                                                <a class="btn btn-sm btn-secondary" href="#" onclick="javascript: window.open('alterar.php?nome=<?=$m['nome']?>', '', 'width=500,height=355,left=' + (document.documentElement.clientWidth - 500) / 2 + ',top=' + (document.documentElement.clientHeight - 355) / 2)">Alterar</a>
+                                                <a class="btn btn-sm btn-outline-secondary" href="#" onclick="javascript: window.open('remover.php?nome=<?=$curso['nome']?>', '', 'width=500,height=355,left=' + (document.documentElement.clientWidth - 500) / 2 + ',top=' + (document.documentElement.clientHeight - 355) / 2)">Remover</a>
+                                                <a class="btn btn-sm btn-secondary" href="#" onclick="javascript: window.open('alterar.php?nome=<?=$curso['nome']?>', '', 'width=500,height=355,left=' + (document.documentElement.clientWidth - 500) / 2 + ',top=' + (document.documentElement.clientHeight - 355) / 2)">Alterar</a>
                                             </td>
                                         </tr>
 <?php
@@ -101,14 +102,14 @@ include_once(App_MenuModelo);
                         else
                         {
 ?>
-                            <p class="text-danger">Não existem cursos da área de Exatas cadastrados.</p>
+                            <p class="text-danger mt-2">Não existem cursos da área de Exatas cadastrados.</p>
 <?php
                         }
 ?>
                     </div>
                     <div class="tab-pane container-fluid" id="humanas">
 <?php
-                        if($modelo->__get('listaHumanas'))
+                        if($modelo->cursos['Humanas'])
                         {
 ?>
                             <table class="table table-hover">
@@ -120,14 +121,14 @@ include_once(App_MenuModelo);
                                 </thead>
                                 <tbody>
 <?php
-                                    foreach($modelo->__get('listaHumanas') as $m)
+                                    foreach($modelo->cursos['Humanas'] as $curso)
                                     {
 ?>
                                         <tr class="row">
-                                            <td class="col-8"><?=$m['nome']?></td>
+                                            <td class="col-8"><?=$curso['nome']?></td>
                                             <td class="col-4">
-                                                <a class="btn btn-sm btn-outline-secondary" href="#" onclick="javascript: window.open('remover.php?nome=<?=$m['nome']?>', '', 'width=500,height=355,left=' + (document.documentElement.clientWidth - 500) / 2 + ',top=' + (document.documentElement.clientHeight - 355) / 2)">Remover</a>
-                                                <a class="btn btn-sm btn-secondary" href="#" onclick="javascript: window.open('alterar.php?nome=<?=$m['nome']?>', '', 'width=500,height=355,left=' + (document.documentElement.clientWidth - 500) / 2 + ',top=' + (document.documentElement.clientHeight - 355) / 2)">Alterar</a>
+                                                <a class="btn btn-sm btn-outline-secondary" href="#" onclick="javascript: window.open('remover.php?nome=<?=$curso['nome']?>', '', 'width=500,height=355,left=' + (document.documentElement.clientWidth - 500) / 2 + ',top=' + (document.documentElement.clientHeight - 355) / 2)">Remover</a>
+                                                <a class="btn btn-sm btn-secondary" href="#" onclick="javascript: window.open('alterar.php?nome=<?=$curso['nome']?>', '', 'width=500,height=355,left=' + (document.documentElement.clientWidth - 500) / 2 + ',top=' + (document.documentElement.clientHeight - 355) / 2)">Alterar</a>
                                             </td>
                                         </tr>
 <?php
@@ -140,7 +141,7 @@ include_once(App_MenuModelo);
                         else
                         {
 ?>
-                            <p class="text-danger">Não existem cursos da área de Humanas cadastrados.</p>
+                            <p class="text-danger mt-2">Não existem cursos da área de Humanas cadastrados.</p>
 <?php
                         }
 ?>
@@ -149,4 +150,4 @@ include_once(App_MenuModelo);
             </div>
         </div>
     </div>
-<?php include_once(App_RodapeModelo); ?>
+<?php include_once($config->getRodape()); ?>
